@@ -1,0 +1,46 @@
+# .gitignore for .NET/Visual Studio
+
+## Ignore build results
+bin/
+obj/
+out/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## VS Code workspace settings
+.vscode/
+
+## Visual Studio settings
+.vs/
+
+## NuGet packages
+*.nupkg
+# Uncomment if you use NuGet restore
+# packages/
+
+## Dotnet-specific
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## Logs
+*.log
+
+## OS generated files
+.DS_Store
+Thumbs.db
+
+## Others
+*.swp
+*.bak
+*.tmp
+
+## Sensitive files
+appsettings.*.json
+secrets.json
+
+# End of .gitignore
