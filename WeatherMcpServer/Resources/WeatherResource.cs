@@ -7,9 +7,9 @@ namespace WeatherMcpServer.Resources;
 public class WeatherResource
 {
 
-    [McpServerResource(UriTemplate = "weather://wmo_codes", Name = "WMO Weather Codes", MimeType = "text/plain")]
+    [McpServerResource(Name = "WMO Weather Codes", MimeType = "text/plain")]
     [Description("A mapping of WMO codes into weather name. Tab separated")]
-    public static string DirectTextResource() => """
+    public static string WMOWeatherCodes() => """
                                                  Code	Description
                                                  0 	Clear sky
                                                  1, 2, 3	Mainly clear, partly cloudy, and overcast

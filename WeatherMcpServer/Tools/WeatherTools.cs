@@ -1,5 +1,6 @@
-﻿using System.ComponentModel;
+﻿using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
+using System.ComponentModel;
 using WeatherMcpServer.HttpClients;
 
 namespace WeatherMcpServer.Tools
@@ -18,14 +19,13 @@ namespace WeatherMcpServer.Tools
 
 
         [McpServerTool(Name = "GetCityWeather")]
-        [Description("Get current weather for a city in specified country.")]
-        public async Task<string> GetCityWeather(
+        [Description("Get current weather for a city")]
+        public async Task<string> GetCityWeather(IMcpServer server,
             [Description("The name of the city. Additionally a voivodeship name can be added (e.g. Toruń, Kuyavian-Pomeranian, Brasschaat).")] string? city,
             [Description("The name of the country. It can be also defined as country code like PL or BE")] string? country)
         {
             // just for debug purposes
             //Debugger.Launch(); 
-
             if (string.IsNullOrWhiteSpace(city))
             {
                 return "City name has to be provided to correctly provide weather.";
@@ -38,7 +38,7 @@ namespace WeatherMcpServer.Tools
 
             var geocode = await _geocodeApi.GetGeocodeAsync($"{city}, {country}");
 
-            if (geocode == null || !geocode.Any())
+            if (geocode == null || geocode.Length == 0)
             {
                 return $"Did not found such {city} in {country}.";
             }
@@ -50,16 +50,38 @@ namespace WeatherMcpServer.Tools
                 longitude: bestMatch.Longitude,
                 current: "temperature_2m,wind_speed_10m,weather_code"
             );
-
-            return $"""
+            var prompt = $"""
                     City: {bestMatch.DisplayName}
                     Latitude: {bestMatch.Latitude}, Longitude: {bestMatch.Longitude}
                     Current time: {response.Current?.Time}
                     Timezone: {response.Timezone}
-                    Temperature (2m) [{response.CurrentUnits.Temperature2m}]: {response.Current.Temperature2m}
+                    Temperature (2m) [{response.CurrentUnits!.Temperature2m}]: {response.Current!.Temperature2m}
                     Wind speed (10m) [{response.CurrentUnits.WindSpeed10m}]: {response.Current.WindSpeed10m} 
                     Weather code: [{response.Current.WeatherCode}]
                     """;
+            var samplingParams = CreateRequestSamplingParams(prompt, maxTokens: 100);
+
+            var samplingResponse = await server.SampleAsync(samplingParams);
+            return $" {(samplingResponse.Content as TextContentBlock)?.Text}";
+        }
+
+        private static CreateMessageRequestParams CreateRequestSamplingParams(string context, int maxTokens = 1000)
+        {
+            return new CreateMessageRequestParams
+            {
+                Messages = [new SamplingMessage
+                {
+                    Role = Role.Assistant,
+                    Content = new TextContentBlock { Text = $"""
+                    {context}. Convert code to description from 
+                    the resource WMO Weather Codes  (do not give any numeric code in conversation).
+                    Can you present this in a table with emojis to make it nice"
+                    """ },
+                }],
+                MaxTokens = maxTokens,
+                Temperature = 0.1f,
+                IncludeContext = ContextInclusion.ThisServer
+            };
         }
     }
 }
