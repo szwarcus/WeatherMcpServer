@@ -15,5 +15,8 @@ namespace WeatherMcpServer.HttpClients.Responses.Parts
 
         [JsonPropertyName("wind_speed_10m")]
         public double? WindSpeed10m { get; set; }
+
+        [JsonPropertyName("weather_code")]
+        public double? WeatherCode { get; set; }
     }
 }
