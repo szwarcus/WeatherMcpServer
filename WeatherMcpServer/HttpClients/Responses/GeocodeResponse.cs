@@ -2,18 +2,5 @@
 
 namespace WeatherMcpServer.HttpClients.Responses
 {
-    public class GeocodeResponse
-    {
-        [JsonPropertyName("lat")]
-        public string Latitude { get; set; }
-
-        [JsonPropertyName("lon")]
-        public string Longitude { get; set; }
-
-        [JsonPropertyName("display_name")]
-        public string DisplayName { get; set; }
-
-        [JsonPropertyName("importance")]
-        public double Importance { get; set; }
-    }
+    public record GeocodeResponse([property: JsonPropertyName("lat")] string Latitude, [property: JsonPropertyName("lon")] string Longitude, [property: JsonPropertyName("display_name")] string DisplayName, [property: JsonPropertyName("importance")] double Importance);
 }
